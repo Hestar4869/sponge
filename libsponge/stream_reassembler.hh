@@ -4,14 +4,32 @@
 #include "byte_stream.hh"
 
 #include <cstdint>
+#include <queue>
 #include <string>
+#include <utility>
 
 //! \brief A class that assembles a series of excerpts from a byte stream (possibly out of order,
 //! possibly overlapping) into an in-order byte stream.
 class StreamReassembler {
   private:
     // Your code here -- add private members as necessary.
+    typedef struct substring{
+        std::string data{};
+        uint64_t  index{};
+        bool eof{};
+        substring()=default;
+        bool operator < (const substring& x) const{
+            return index > x.index;
+        };
+    }substring_t;
 
+    std::priority_queue< substring_t > _unreassembleData;
+    void stichSubstring(substring_t& answer,substring_t& sub1,substring_t& sub2);
+
+    // 指明下一个希望读入的序列号
+    uint64_t _nindex;
+    uint64_t _unassembled_bytes;
+    bool _eof;
     ByteStream _output;  //!< The reassembled in-order byte stream
     size_t _capacity;    //!< The maximum number of bytes
 
