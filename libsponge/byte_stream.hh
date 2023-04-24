@@ -12,9 +12,9 @@ class ByteStream {
   private:
     // Your code here -- add private members as necessary.
     std::vector<char> _buffer={};
-    size_t _capacity;
-    size_t _total_written=0;
-    size_t _total_read=0;
+    uint64_t _capacity;
+    uint64_t _total_written=0;
+    uint64_t _total_read=0;
     bool _end_input = false;
 
     // Hint: This doesn't need to be a sophisticated data structure at

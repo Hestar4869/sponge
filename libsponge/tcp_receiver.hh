@@ -14,6 +14,11 @@
 //! the acknowledgment number and window size to advertise back to the
 //! remote TCPSender.
 class TCPReceiver {
+
+    uint64_t _checkpoint=0;
+    std::optional<WrappingInt32> _isn{};
+    std::optional<WrappingInt32> _ackno{};
+
     //! Our data structure for re-assembling bytes.
     StreamReassembler _reassembler;
 
