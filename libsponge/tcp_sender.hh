@@ -5,11 +5,10 @@
 #include "tcp_config.hh"
 #include "tcp_segment.hh"
 #include "wrapping_integers.hh"
-
-#include <functional>
 #include <list>
+#include <functional>
 #include <queue>
-
+using std::list;
 //! \brief The "sender" part of a TCP implementation.
 
 //! Accepts a ByteStream, divides it up into segments and sends the
@@ -18,23 +17,23 @@
 //! segments if the retransmission timer expires.
 class TCPSender {
   private:
-    bool _is_finsent= false;
-    //! the sequence number in the segment that has sent but not yet received
-    size_t _bytes_in_flight=0;
-    //! the most recent retransmission timeout
-    unsigned int _rto{};
-    unsigned int _timer =0;
+    //! 目前未确认的报文集合
+    list<TCPSegment> _outstanding_seg{};
+    bool _is_fin_sent= false;
+    bool _is_syn_ack= false;
 
-    //! check the timer is stopped or not
-    bool _is_stopped= true;
-    //! the latest windows size
-    uint16_t _windows_size=0;
-    //! the number of consecutive retransmissions
-    unsigned int _contiguous_num=0;
-    std::list<TCPSegment> _outstanding_segments{};
-    bool send_segment(TCPSegment seg);
+    //! 只维护当前已发送报文之后的剩余窗口大小
+    uint16_t _remaining_window=0;
+    uint16_t _window_size=0;
+    bool _is_zero_window= false;
 
+    //! 重传定时器
+    size_t _timer=0;
+    bool _is_timer_stopped = true;
+    unsigned int _current_rto{};
 
+    //! 连续重传次数
+    unsigned int _consecutive_retransmissions=0;
 
     //! our initial sequence number, the number for our SYN.
     WrappingInt32 _isn;
@@ -51,6 +50,7 @@ class TCPSender {
     //! the (absolute) sequence number for the next byte to be sent
     uint64_t _next_seqno{0};
 
+    void send_segment(TCPSegment seg);
   public:
     //! Initialize a TCPSender
     TCPSender(const size_t capacity = TCPConfig::DEFAULT_CAPACITY,
@@ -106,6 +106,7 @@ class TCPSender {
     //! \brief relative seqno for the next byte to be sent
     WrappingInt32 next_seqno() const { return wrap(_next_seqno, _isn); }
     //!@}
+
 
 };
 
